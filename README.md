@@ -1,17 +1,5 @@
 # Food
 
-## TODO
-- Add registration page
--- Add user to the db
-- Add login page
--- Authenticate user
--- Authentication token in cookie
--- ring authentication wrapper
-
-- Error handling
--- Show error messge on the client side
--- Catch exception on DB access and add message to edn response
-
 ## Development
 
 Start a REPL (in a terminal: `lein repl`, or from Emacs: open a
