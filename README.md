@@ -1,5 +1,16 @@
-# food
+# Food
 
+## TODO
+- Add registration page
+-- Add user to the db
+- Add login page
+-- Authenticate user
+-- Authentication token in cookie
+-- ring authentication wrapper
+
+- Error handling
+-- Show error messge on the client side
+-- Catch exception on DB access and add message to edn response
 
 ## Development
 
@@ -29,25 +40,11 @@ in 21.36 seconds.`, you're ready to go. Browse to
 **Attention: It is not longer needed to run `lein figwheel`
   separately. This is now taken care of behind the scenes**
 
-## Trying it out
+## Starting Postgres
 
-If all is well you now have a browser window saying 'Hello Chestnut',
-and a REPL prompt that looks like `cljs.user=>`.
-
-Open `resources/public/css/style.css` and change some styling of the
-H1 element. Notice how it's updated instantly in the browser.
-
-Open `src/cljs/food/core.cljs`, and change `dom/h1` to
-`dom/h2`. As soon as you save the file, your browser is updated.
-
-In the REPL, type
-
+``` sh
+postgres -D /usr/local/var/postgres/
 ```
-(ns food.core)
-(swap! app-state assoc :text "Interactivity FTW")
-```
-
-Notice again how the browser updates.
 
 ## Deploying to Heroku
 

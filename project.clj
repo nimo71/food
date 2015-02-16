@@ -18,6 +18,7 @@
                  [weasel "0.4.0-SNAPSHOT"]
                  [leiningen "2.5.0"]
                  [fogus/ring-edn "0.2.0"]
+                 [com.cemerick/friend "0.2.1"]
                  [org.clojure/java.jdbc "0.3.3"]
                  [lobos "1.0.0-beta3"]
                  [korma "0.3.0"]

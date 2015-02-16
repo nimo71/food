@@ -1,16 +1,28 @@
 (ns food.server
   (:require [clojure.java.io :as io]
             [food.dev :refer [is-dev? inject-devmode-html browser-repl start-figwheel]]
-            [compojure.core :refer [GET PUT defroutes]]
+            [compojure.core :refer [GET PUT defroutes context]]
             [compojure.route :refer [resources]]
-            [compojure.handler :refer [api]]
+            [compojure.handler :refer [api site]]
             [net.cgrand.enlive-html :refer [deftemplate]]
             [ring.middleware.reload :as reload]
             [ring.middleware.edn :refer [wrap-edn-params]]
             [environ.core :refer [env]]
             [ring.adapter.jetty :refer [run-jetty]]
+            [ring.util.response :as resp]
+            [cemerick.friend :as friend]
+            [cemerick.friend.workflows :as workflows]
+            [cemerick.friend.credentials :as creds]
             [food.app-context :refer [entry-repository]]
             [food.repository :refer [save-entry retrieve-entries]]))
+
+(def users {"nick" {:username "nick"
+                    :password (creds/hash-bcrypt "nick")},
+            "user" {:username "user"
+                    :password (creds/hash-bcrypt "user_password")}})
+
+(deftemplate login
+  (io/resource "login.html") [] [:body] (if is-dev? inject-devmode-html identity))
 
 (deftemplate page
   (io/resource "index.html") [] [:body] (if is-dev? inject-devmode-html identity))
@@ -30,20 +42,28 @@
      :body     (pr-str entries)}))
 
 (defroutes routes
+  (GET "/login" req (login))
+  (GET "/logout" req (friend/logout* (resp/redirect (str (:context req) "/"))))
+  (GET "/entries" [] (friend/authenticated (get-entries)))
+  (PUT "/entry" [timestamp] (friend/authenticated (put-entry {:timestamp timestamp})))
+  (GET "/" req (friend/authenticated (page)))
+
   (resources "/")
-  (resources "/react" {:root "react"})
-  (GET "/entries" [] (get-entries))
-  (PUT "/entry" [timestamp] (put-entry {:timestamp timestamp}))
-  (GET "/*" req (page)))
+  (resources "/react" {:root "react"}))
 
 (def app
   (-> routes
+      (friend/authenticate {:allow-anon? true
+                            :login-uri "/login"
+                            :default-landing-uri "/"
+                            :credential-fn (partial creds/bcrypt-credential-fn users)
+                            :workflows [(workflows/interactive-form)]})
       wrap-edn-params))
 
 (def http-handler
   (if is-dev?
-    (reload/wrap-reload (api #'app))
-    (api app)))
+    (reload/wrap-reload (site #'app))
+    (site app)))
 
 (defn run [& [port]]
   (defonce ^:private server
