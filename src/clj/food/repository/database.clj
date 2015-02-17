@@ -22,6 +22,22 @@
       (let [ts (:timestamp entry)]
         (insert entries (values {:when ts}))))
     (retrieve-entries [this]
-      (let [rs (select entries)]
-        (println "retrieve-entries rs=" rs)
-        rs))))
+      (select entries))))
+
+(declare users)
+
+(defentity users
+  (pk :id)
+  (table :users)
+  (database food-db)
+  (entity-fields :username :password))
+
+(defn user-repository []
+  (reify
+    repo/UserRepository
+    (save-user [this user]
+      (insert users (values user)))
+    (retrieve-user [this username password]
+      (select users
+              (where (and (= :username username)
+                          (= :password password)))))))

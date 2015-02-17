@@ -1,7 +1,8 @@
 # TODO
 
 - Authenticate user from db
--- create user table, migrations, CRUD operations
+-- select user from database on processing of login/ post
+-- make username and password an aggregate key
 
 - Add registration page
 

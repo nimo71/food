@@ -25,7 +25,8 @@
                  [postgresql "9.1-901.jdbc4"]]
 
   :plugins [[lein-cljsbuild "1.0.3"]
-            [lein-environ "1.0.0"]]
+            [lein-environ "1.0.0"]
+            [cider/cider-nrepl "0.8.2"]]
 
   :min-lein-version "2.5.0"
 

@@ -9,3 +9,10 @@
           (tbl :entries
             (varchar :when 50))))
   (down [] (drop (table :entries))))
+
+(defmigration add-users-table
+  (up [] (create
+         (tbl :users
+               (varchar :username 256)
+               (varchar :password 50))))
+  (down [] (drop (table :users))))
