@@ -37,7 +37,5 @@
     repo/UserRepository
     (save-user [this user]
       (insert users (values user)))
-    (retrieve-user [this username password]
-      (select users
-              (where (and (= :username username)
-                          (= :password password)))))))
+    (retrieve-user [this username]
+      (first (select users (where {:username username}))))))

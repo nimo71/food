@@ -6,4 +6,4 @@
 
 (defprotocol UserRepository
   (save-user [this user])
-  (retrieve-user [this username password]))
+  (retrieve-user [this username]))

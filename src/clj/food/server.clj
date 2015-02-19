@@ -13,13 +13,8 @@
             [cemerick.friend :as friend]
             [cemerick.friend.workflows :as workflows]
             [cemerick.friend.credentials :as creds]
-            [food.app-context :refer [entry-repository]]
-            [food.repository :refer [save-entry retrieve-entries]]))
-
-(def users {"nick" {:username "nick"
-                    :password (creds/hash-bcrypt "nick")},
-            "user" {:username "user"
-                    :password (creds/hash-bcrypt "user_password")}})
+            [food.app-context :refer [entry-repository user-repository]]
+            [food.repository :as repo]))
 
 (deftemplate login
   (io/resource "login.html") [] [:body] (if is-dev? inject-devmode-html identity))
@@ -28,14 +23,14 @@
   (io/resource "index.html") [] [:body] (if is-dev? inject-devmode-html identity))
 
 (defn put-entry [entry]
-  (let [saved (save-entry (entry-repository) entry)]
+  (let [saved (repo/save-entry (entry-repository) entry)]
     {:status   200
      :headers  {"Content-Type" "application/edn"}
      :body     (pr-str {:id 1
                         :timestamp (:timestamp entry)})}))
 
 (defn get-entries []
-  (let [entries (retrieve-entries (entry-repository))]
+  (let [entries (repo/retrieve-entries (entry-repository))]
     (println "get-entries entries=" entries)
     {:status   200
      :headers  {"Content-Type" "application/edn"}
@@ -51,12 +46,20 @@
   (resources "/")
   (resources "/react" {:root "react"}))
 
+(def credential-fn
+  (partial creds/bcrypt-credential-fn
+               (fn [id]
+                 (when-let [{:keys [username password]}
+                            (repo/retrieve-user (user-repository) id)]
+                   (println "credential-fn: username=" username ", password=" password)
+                   {:username username :password password}))))
+
 (def app
   (-> routes
       (friend/authenticate {:allow-anon? true
                             :login-uri "/login"
                             :default-landing-uri "/"
-                            :credential-fn (partial creds/bcrypt-credential-fn users)
+                            :credential-fn #(creds/bcrypt-credential-fn (partial repo/retrieve-user (user-repository)) %)
                             :workflows [(workflows/interactive-form)]})
       wrap-edn-params))
 

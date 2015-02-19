@@ -14,5 +14,5 @@
   (up [] (create
          (tbl :users
                (varchar :username 256)
-               (varchar :password 50))))
+               (varchar :password 60))))
   (down [] (drop (table :users))))

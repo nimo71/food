@@ -1,10 +1,10 @@
 # TODO
 
-- Authenticate user from db
--- select user from database on processing of login/ post
--- make username and password an aggregate key
-
 - Add registration page
+
+- Authenticate user from db
+-- retrieve-user just takes first result. What are error conditions, should we just allow an exception to be thrown, etc...
+-- make username a unique column
 
 - Error handling
 -- Show error messge on the client side

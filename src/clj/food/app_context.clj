@@ -3,3 +3,6 @@
 
 (defn entry-repository []
   (db/entry-repository))
+
+(defn user-repository []
+  (db/user-repository))
