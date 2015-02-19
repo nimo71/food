@@ -1,7 +1,7 @@
 (ns food.server
   (:require [clojure.java.io :as io]
             [food.dev :refer [is-dev? inject-devmode-html browser-repl start-figwheel]]
-            [compojure.core :refer [GET PUT defroutes context]]
+            [compojure.core :refer [GET PUT POST defroutes context]]
             [compojure.route :refer [resources]]
             [compojure.handler :refer [api site]]
             [net.cgrand.enlive-html :refer [deftemplate]]
@@ -19,6 +19,16 @@
 (deftemplate login
   (io/resource "login.html") [] [:body] (if is-dev? inject-devmode-html identity))
 
+(deftemplate register
+  (io/resource "register.html") [] [:body] (if is-dev? inject-devmode-html identity))
+
+(defn register-user [registration-form]
+  (println "register-user: " registration-form)
+  (let [{:keys [username confirm-username password confirm-password]}
+        registration-form]
+    (repo/save-user (user-repository) {:username username
+                                       :password (creds/hash-bcrypt password)})))
+
 (deftemplate page
   (io/resource "index.html") [] [:body] (if is-dev? inject-devmode-html identity))
 
@@ -31,7 +41,6 @@
 
 (defn get-entries []
   (let [entries (repo/retrieve-entries (entry-repository))]
-    (println "get-entries entries=" entries)
     {:status   200
      :headers  {"Content-Type" "application/edn"}
      :body     (pr-str entries)}))
@@ -39,6 +48,8 @@
 (defroutes routes
   (GET "/login" req (login))
   (GET "/logout" req (friend/logout* (resp/redirect (str (:context req) "/"))))
+  (GET "/register" req (register))
+  (POST "/register" {registration-form :params} (register-user registration-form))
   (GET "/entries" [] (friend/authenticated (get-entries)))
   (PUT "/entry" [timestamp] (friend/authenticated (put-entry {:timestamp timestamp})))
   (GET "/" req (friend/authenticated (page)))
@@ -46,20 +57,14 @@
   (resources "/")
   (resources "/react" {:root "react"}))
 
-(def credential-fn
-  (partial creds/bcrypt-credential-fn
-               (fn [id]
-                 (when-let [{:keys [username password]}
-                            (repo/retrieve-user (user-repository) id)]
-                   (println "credential-fn: username=" username ", password=" password)
-                   {:username username :password password}))))
+(def users (partial repo/retrieve-user (user-repository)))
 
 (def app
   (-> routes
       (friend/authenticate {:allow-anon? true
                             :login-uri "/login"
                             :default-landing-uri "/"
-                            :credential-fn #(creds/bcrypt-credential-fn (partial repo/retrieve-user (user-repository)) %)
+                            :credential-fn #(creds/bcrypt-credential-fn users %)
                             :workflows [(workflows/interactive-form)]})
       wrap-edn-params))
 
