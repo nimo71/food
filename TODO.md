@@ -2,9 +2,14 @@
 
 - Registration page:
 -- form validation
+-- redirect to login page on successful registation with username field filled in and successful registration message 
 
 - Login page: 
 -- form validation, how does friend deal with errors.
+
+- Add register link on login page
+- Add login link on registration page
+- Add logout link on application page
 
 - Authenticate user from db
 -- retrieve-user just takes first result. What are error conditions, should we just allow an exception to be thrown, etc...
