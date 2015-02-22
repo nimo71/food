@@ -15,7 +15,8 @@
             [cemerick.friend.credentials :as creds]
             [food.app-context :refer [entry-repository user-repository]]
             [food.repository :as repo]
-            [food.handlers.registration :refer [register register-user]]))
+            [food.handlers.registration :refer [register-user]]
+            [food.views.register :refer [register]]))
 
 (deftemplate login (io/resource "login.html") [username]
   [:body]

@@ -6,29 +6,38 @@
             [food.repository :as repo]
             [food.views.register :as view]))
 
-(defn validate-equal [validity name a b]
+(defn !equal [validity name a b]
   (if (not= a b)
-    (let [errors (vec (name validity))]
-      (assoc validity name (conj errors :equal)))
+    (assoc validity name (conj (vec (name validity)) :equal))
+    validity))
+
+(defn !empty [validity name val]
+  (if (empty? val)
+    (assoc validity name (conj (vec (name validity)) :empty))
     validity))
 
 (defn validate-user-registration
   [{:keys [username confirm-username password confirm-password]}]
-  (let [e (validate-equal {} :confirm-username username confirm-username)]
-    (validate-equal e :confirm-password password confirm-password)))
+  (-> {}
+      (!empty :username username)
+      (!empty :confirm-username confirm-username)
+      (!equal :confirm-username username confirm-username)
+      (!empty :password password)
+      (!empty :confirm-password confirm-password)
+      (!equal :confirm-password password confirm-password)))
 
-(def messages {:username {}
-               :confirm-username {:equal "Username confirmation doesn't match."}
-               :password {}
-               :confirm-password {:equal "Password confirmation doesn't match."}})
+(def messages {:username         {:empty "Enter a username"}
+               :confirm-username {:empty "Enter username confimation"
+                                  :equal "Username confirmation doesn't match."}
+               :password         {:empty "Enter a password"}
+               :confirm-password {:empty "Enter password confirmation"
+                                  :equal "Password confirmation doesn't match."}})
 
 (defn field-messages [field errors]
-  (println "field-messages, field=" field ", errors=" errors)
   (for [msg-key (field errors)]
     (-> messages field msg-key)))
 
 (defn add-messages [errors]
-  (println "add-messages, errors=")
   (if (seq errors)
     (into {:page ["Check your inputs and try again!"]}
           (for [field (keys errors)
@@ -37,14 +46,11 @@
     errors))
 
 (defn register-user
-  [{:keys [username confirm-username password] :as reg-form}]
+  [{:keys [username password] :as reg-form}]
   (let [errors (validate-user-registration reg-form)]
     (if (seq errors)
-      (view/register {:username username
-                 :confirm-username confirm-username
-                 :errors (add-messages errors)})
+      (view/register (assoc reg-form :errors (add-messages errors)))
       (do
-
         (repo/save-user (user-repository) {:username username
                                            :password (creds/hash-bcrypt password)})
         (response/redirect-after-post (str "/login?username=" username))))))

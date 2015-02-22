@@ -11,7 +11,7 @@
     (enlive/content msg)))
 
 (deftemplate register (io/resource "register.html")
-  [{:keys [username confirm-username errors]}]
+  [{:keys [username confirm-username password confirm-password errors]}]
 
   [:body]
   (if is-dev? inject-devmode-html identity)
@@ -35,7 +35,16 @@
      (enlive/after (error-messages (:confirm-username errors)))
      identity))
 
+  [:#password]
+  (enlive/do->
+   (enlive/set-attr :value password)
+   (if (and (seq errors) (seq (:password errors)))
+     (enlive/after (error-messages (:password errors)))
+     identity))
+
   [:#confirm-password]
-  (if (and (seq errors) (seq (:confirm-password errors)))
-    (enlive/after (error-messages (:confirm-password errors)))
-    identity))
+  (enlive/do->
+   (enlive/set-attr :value confirm-password)
+   (if (and (seq errors) (seq (:confirm-password errors)))
+     (enlive/after (error-messages (:confirm-password errors)))
+     identity)))
