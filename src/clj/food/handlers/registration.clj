@@ -16,6 +16,12 @@
     (assoc validity name (conj (vec (name validity)) :empty))
     validity))
 
+(defn !length [validity name val shortest longest]
+  (let [l (count val)]
+    (if (or (< l shortest) (> l longest))
+      (assoc validity name (conj (vec (name validity)) :length))
+      validity)))
+
 (defn validate-user-registration
   [{:keys [username confirm-username password confirm-password]}]
   (-> {}
@@ -23,15 +29,17 @@
       (!empty :confirm-username confirm-username)
       (!equal :confirm-username username confirm-username)
       (!empty :password password)
+      (!length :password password 4 20)
       (!empty :confirm-password confirm-password)
       (!equal :confirm-password password confirm-password)))
 
 (def messages {:username         {:empty "Enter a username"}
                :confirm-username {:empty "Enter username confimation"
-                                  :equal "Username confirmation doesn't match."}
-               :password         {:empty "Enter a password"}
+                                  :equal "Username confirmation doesn't match"}
+               :password         {:empty "Enter a password"
+                                  :length "Password must have 4 to 20 characters"}
                :confirm-password {:empty "Enter password confirmation"
-                                  :equal "Password confirmation doesn't match."}})
+                                  :equal "Password confirmation doesn't match"}})
 
 (defn field-messages [field errors]
   (for [msg-key (field errors)]
