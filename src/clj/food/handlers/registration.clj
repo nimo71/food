@@ -1,48 +1,10 @@
 (ns food.handlers.registration
   (:require [clojure.java.io :as io]
             [cemerick.friend.credentials :as creds]
-            [net.cgrand.enlive-html :as enlive :refer [deftemplate defsnippet]]
             [ring.util.response :as response]
             [food.app-context :refer [user-repository]]
-            [food.dev :refer [is-dev? inject-devmode-html]]
-            [food.repository :as repo]))
-
-(defsnippet error-messages (io/resource "messages.html") [:#error-messages]
-  [messages]
-
-  [:li.error-message]
-  (enlive/clone-for [msg messages]
-    (enlive/content msg)))
-
-(deftemplate register (io/resource "register.html")
-  [{:keys [username confirm-username errors]}]
-
-  [:body]
-  (if is-dev? inject-devmode-html identity)
-
-  [:body enlive/first-child]
-  (if (and (seq errors) (seq (:page errors)))
-    (enlive/prepend (error-messages (:page errors)))
-    identity)
-
-  [:#username]
-  (enlive/do->
-   (enlive/set-attr :value username)
-   (if (and (seq errors) (seq (:username errors)))
-     (enlive/after (error-messages (:username errors)))
-     identity))
-
-  [:#confirm-username]
-  (enlive/do->
-   (enlive/set-attr :value confirm-username)
-   (if (and (seq errors) (seq (:confirm-username errors)))
-     (enlive/after (error-messages (:confirm-username errors)))
-     identity))
-
-  [:#confirm-password]
-  (if (and (seq errors) (seq (:confirm-password errors)))
-    (enlive/after (error-messages (:confirm-password errors)))
-    identity))
+            [food.repository :as repo]
+            [food.views.register :as view]))
 
 (defn validate-equal [validity name a b]
   (if (not= a b)
@@ -78,7 +40,7 @@
   [{:keys [username confirm-username password] :as reg-form}]
   (let [errors (validate-user-registration reg-form)]
     (if (seq errors)
-      (register {:username username
+      (view/register {:username username
                  :confirm-username confirm-username
                  :errors (add-messages errors)})
       (do
