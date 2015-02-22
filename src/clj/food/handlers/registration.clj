@@ -6,40 +6,36 @@
             [food.repository :as repo]
             [food.views.register :as view]))
 
-(defn !equal [validity name a b]
-  (if (not= a b)
-    (assoc validity name (conj (vec (name validity)) :equal))
+(defn !valid [validity field property pred]
+  (if pred
+    (assoc validity field (conj (vec (field validity)) property))
     validity))
 
-(defn !empty [validity name val]
-  (if (empty? val)
-    (assoc validity name (conj (vec (name validity)) :empty))
-    validity))
+(defn !equal [validity field a b]
+  (!valid validity field :equal (not= a b)))
 
-(defn !length [validity name val shortest longest]
+(defn !empty [validity field val]
+  (!valid validity field :empty (empty? val)))
+
+(defn !length [validity field val shortest longest]
   (let [l (count val)]
-    (if (or (< l shortest) (> l longest))
-      (assoc validity name (conj (vec (name validity)) :length))
-      validity)))
+    (!valid validity field :length (or (< l shortest) (> l longest)))))
+
+(defn !email [validity field val]
+  (!valid validity field :email (empty? (re-matches #".*@.*\..*" val))))
 
 (defn validate-user-registration
   [{:keys [username confirm-username password confirm-password]}]
   (-> {}
-      (!empty :username username)
-      (!empty :confirm-username confirm-username)
+      (!email :username username)
       (!equal :confirm-username username confirm-username)
-      (!empty :password password)
       (!length :password password 4 20)
-      (!empty :confirm-password confirm-password)
       (!equal :confirm-password password confirm-password)))
 
-(def messages {:username         {:empty "Enter a username"}
-               :confirm-username {:empty "Enter username confimation"
-                                  :equal "Username confirmation doesn't match"}
-               :password         {:empty "Enter a password"
-                                  :length "Password must have 4 to 20 characters"}
-               :confirm-password {:empty "Enter password confirmation"
-                                  :equal "Password confirmation doesn't match"}})
+(def messages {:username         {:email "Enter a valid email address"}
+               :confirm-username {:equal "Email confirmation does not match"}
+               :password         {:length "Enter a password with 4 to 20 characters"}
+               :confirm-password {:equal "Password confirmation does not match"}})
 
 (defn field-messages [field errors]
   (for [msg-key (field errors)]

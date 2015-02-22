@@ -2,21 +2,25 @@
 
 - Registration page:
 -- form validation
---- email as username, password length?
--- redirect to login page on successful registation with username field filled in and successful registration message 
+--- check whether username is already registered
+-- redirect to login page on successful registation with username field filled in and successful registration flash message 
 
 -- Tidy up server.clj, need to extract page handlers and templates
 
 - Login page: 
--- form validation, how does friend deal with errors.
+-- form validation
+-- error messages, how does friend deal with errors.
 
 - Add register link on login page
 - Add login link on registration page
 - Add logout link on application page
 
+- Client side validation on login in registration pages
+
 - Authenticate user from db
 -- retrieve-user just takes first result. What are error conditions, should we just allow an exception to be thrown, etc...
 -- make username a unique column
+
 
 - Error handling
 -- Show error messge on the client side
