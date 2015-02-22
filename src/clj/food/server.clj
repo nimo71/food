@@ -4,7 +4,7 @@
             [compojure.core :refer [GET PUT POST defroutes context]]
             [compojure.route :refer [resources]]
             [compojure.handler :refer [api site]]
-            [net.cgrand.enlive-html :as enlive :refer [deftemplate defsnippet]]
+            [net.cgrand.enlive-html :as enlive :refer [deftemplate]]
             [ring.middleware.reload :as reload]
             [ring.middleware.edn :refer [wrap-edn-params]]
             [environ.core :refer [env]]
@@ -14,49 +14,15 @@
             [cemerick.friend.workflows :as workflows]
             [cemerick.friend.credentials :as creds]
             [food.app-context :refer [entry-repository user-repository]]
-            [food.repository :as repo]))
+            [food.repository :as repo]
+            [food.handlers.registration :refer [register register-user]]))
 
-(defsnippet error-messages (io/resource "messages.html") [:#error-messages]
-  [messages]
-
-  [:li.error-message]
-  (enlive/clone-for [msg messages]
-    (enlive/content msg)))
-
-(deftemplate login (io/resource "login.html") []
-  [:body]
-  (if is-dev? inject-devmode-html identity))
-
-(deftemplate register (io/resource "register.html")
-  [{:keys [username confirm-username error]}]
-
+(deftemplate login (io/resource "login.html") [username]
   [:body]
   (if is-dev? inject-devmode-html identity)
 
-  [:body enlive/first-child]
-  (if error
-    (enlive/prepend (error-messages [[error]]))
-    identity)
-
   [:#username]
-  (enlive/set-attr :value username)
-
-  [:#confirm-username]
-  (enlive/set-attr :value confirm-username))
-
-(defn valid-user-registration?
-  [{:keys [username confirm-username password confirm-password] :as reg-form}]
-  false)
-
-(defn register-user
-  [{:keys [username confirm-username password confirm-password] :as reg-form}]
-  (if (valid-user-registration? reg-form)
-    (repo/save-user (user-repository) {:username username
-                                       :password (creds/hash-bcrypt password)})
-    ;; redirect to login page here with username filled in
-    (register {:username username
-               :confirm-username confirm-username
-               :error "Check your inputs and try again!"})))
+  (enlive/set-attr :value username))
 
 (deftemplate page
   (io/resource "index.html") [] [:body] (if is-dev? inject-devmode-html identity))
@@ -75,7 +41,7 @@
      :body     (pr-str entries)}))
 
 (defroutes routes
-  (GET "/login" req (login))
+  (GET "/login" [username] (login username))
   (GET "/logout" req (friend/logout* (resp/redirect (str (:context req) "/"))))
   (GET "/register" req (register {}))
   (POST "/register" {registration-form :params} (register-user registration-form))

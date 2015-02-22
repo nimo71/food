@@ -2,7 +2,10 @@
 
 - Registration page:
 -- form validation
+--- email as username, password length?
 -- redirect to login page on successful registation with username field filled in and successful registration message 
+
+-- Tidy up server.clj, need to extract page handlers and templates
 
 - Login page: 
 -- form validation, how does friend deal with errors.
