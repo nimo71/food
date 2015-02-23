@@ -64,4 +64,8 @@
       (do
         (repo/save-user (user-repository) {:username username
                                            :password (creds/hash-bcrypt password)})
-        (response/redirect-after-post (str "/login?username=" username))))))
+        (response/set-cookie
+         (response/redirect-after-post (str "/login?username=" username))
+         "flash"
+         "Registration successful! Login with your new email address and password."
+         {:max-age 10})))))

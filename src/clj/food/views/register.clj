@@ -14,12 +14,11 @@
   [{:keys [username confirm-username password confirm-password errors]}]
 
   [:body]
-  (if is-dev? inject-devmode-html identity)
-
-  [:body enlive/first-child]
-  (if (and (seq errors) (seq (:page errors)))
-    (enlive/prepend (error-messages (:page errors)))
-    identity)
+  (enlive/do->
+   (if is-dev? inject-devmode-html identity)
+   (if (and (seq errors) (seq (:page errors)))
+     (enlive/prepend (error-messages (:page errors)))
+     identity))
 
   [:#username]
   (enlive/do->

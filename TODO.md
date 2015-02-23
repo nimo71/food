@@ -1,8 +1,5 @@
 # TODO
 
-- Registration page:
--- redirect to login page on successful registation with username field filled in and successful registration flash message 
-
 -- restrict db tables 
 --- unique username
 --- password length 4..20 chars
@@ -20,6 +17,7 @@
 
 - HTML5 style sections and navigation, header, footer, etc...
 - Client side validation on login in registration pages
+- Flash message should be added to the top of the main section, to be displayed under the navigation menu and above any other content.
 
 - Error handling
 -- Show error messge on the client side
