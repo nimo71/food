@@ -24,18 +24,25 @@
 (defn !email [validity field val]
   (!valid validity field :email (empty? (re-matches #".*@.*\..*" val))))
 
+(defn !exists [validity field val]
+  (!valid validity field :exists (seq (repo/retrieve-user (user-repository) val))))
+
+(def messages {:username         {:email  "Enter a valid email address"
+                                  :exists "Email already registered"}
+               :confirm-username {:equal  "Email confirmation does not match"}
+               :password         {:length "Enter a password with 4 to 20 characters"}
+               :confirm-password {:equal  "Password confirmation does not match"}})
+
 (defn validate-user-registration
   [{:keys [username confirm-username password confirm-password]}]
-  (-> {}
-      (!email :username username)
-      (!equal :confirm-username username confirm-username)
-      (!length :password password 4 20)
-      (!equal :confirm-password password confirm-password)))
-
-(def messages {:username         {:email "Enter a valid email address"}
-               :confirm-username {:equal "Email confirmation does not match"}
-               :password         {:length "Enter a password with 4 to 20 characters"}
-               :confirm-password {:equal "Password confirmation does not match"}})
+    (let [errors (-> {}
+                   (!email :username username)
+                   (!equal :confirm-username username confirm-username)
+                   (!length :password password 4 20)
+                   (!equal :confirm-password password confirm-password))]
+      (if (empty? errors)
+        (!exists errors :username username)
+        errors)))
 
 (defn field-messages [field errors]
   (for [msg-key (field errors)]
