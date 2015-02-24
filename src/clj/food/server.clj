@@ -4,7 +4,7 @@
             [compojure.core :refer [GET PUT POST defroutes context]]
             [compojure.route :refer [resources]]
             [compojure.handler :refer [api site]]
-            [net.cgrand.enlive-html :as enlive :refer [deftemplate defsnippet]]
+            [net.cgrand.enlive-html :refer [deftemplate]]
             [ring.middleware.reload :as reload]
             [ring.middleware.edn :refer [wrap-edn-params]]
             [environ.core :refer [env]]
@@ -15,25 +15,9 @@
             [cemerick.friend.credentials :as creds]
             [food.app-context :refer [entry-repository user-repository]]
             [food.repository :as repo]
+            [food.handlers.login :refer [login]]
             [food.handlers.registration :refer [register-user]]
             [food.views.register :refer [register]]))
-
-(defsnippet flash-message (io/resource "messages.html") [:#flash-message]
-  [message]
-
-  [:#flash-message]
-  (enlive/content (first message)))
-
-(deftemplate login (io/resource "login.html") [username & flash]
-  [:body]
-  (enlive/do->
-   (if is-dev? inject-devmode-html identity)
-   (if (seq flash)
-    (enlive/prepend (flash-message flash))
-    identity))
-
-  [:#username]
-  (enlive/set-attr :value username))
 
 (deftemplate page
   (io/resource "index.html") [] [:body] (if is-dev? inject-devmode-html identity))
@@ -52,10 +36,7 @@
      :body     (pr-str entries)}))
 
 (defroutes routes
-  (GET "/login" {{username :username}     :params,
-                 {{flash :value} "flash"} :cookies} (do
-                                                  (println "flash=" flash)
-                                                  (login username flash)))
+  (GET "/login" req (login req))
   (GET "/logout" req (friend/logout* (resp/redirect (str (:context req) "/"))))
   (GET "/register" req (register {}))
   (POST "/register" {registration-form :params} (register-user registration-form))
