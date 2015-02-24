@@ -13,6 +13,7 @@
 (defmigration add-users-table
   (up [] (create
          (tbl :users
-               (varchar :username 256)
-               (varchar :password 60))))
+               (varchar :username 256 :unique)
+               (varchar :password 20)
+               (check :password (> (length :password) 4)))))
   (down [] (drop (table :users))))

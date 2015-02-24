@@ -28,11 +28,30 @@ in 21.36 seconds.`, you're ready to go. Browse to
 **Attention: It is not longer needed to run `lein figwheel`
   separately. This is now taken care of behind the scenes**
 
+
 ## Starting Postgres
 
 ``` sh
 postgres -D /usr/local/var/postgres/
 ```
+
+
+## Migrations
+
+To run any new migrations open a repl and import namespaces as below:
+(use '(lobos connectivity core schema))
+```
+
+To run new migrations:
+``` sh
+(migrate)
+```
+
+To rollback the last migration:
+``` sh
+(rollback)
+```
+
 
 ## Deploying to Heroku
 

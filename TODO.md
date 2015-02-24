@@ -1,9 +1,5 @@
 # TODO
 
--- restrict db tables 
---- unique username
---- password length 4..20 chars
-
 -- Tidy up server.clj, need to extract page handlers and templates
 
 - Login page: 
