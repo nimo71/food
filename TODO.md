@@ -1,5 +1,6 @@
 # TODO
 
+- Forgotten password links
 - Confirmation email after registration 
 -- use to verify provided email is valid, an error in sending because of invalid address should show validation error on registration form.
 -- includes confirmation link 
@@ -25,3 +26,14 @@
 -- Client side error checking in registration and login form
 
 - use friend to check for https scheme in production only... i.e. (if is-dev? ...)
+
+## Group weight
+- Orgainser create team 
+-- Add people 
+- Email invitation
+- Email to request weight, link to add weight
+- Email to notify all weights in and result
+-- link to results page 
+--- graph
+--- winner
+--- comments
