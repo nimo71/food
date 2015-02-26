@@ -1,9 +1,9 @@
 # TODO
 
-- Forgotten password links
 - Confirmation email after registration 
 -- use to verify provided email is valid, an error in sending because of invalid address should show validation error on registration form.
 -- includes confirmation link 
+- Forgotten password links
 
 - HTML5 style sections and navigation, header, footer, etc...
 - Flash message should be added to the top of the main section, to be displayed under the navigation menu and above any other content.
